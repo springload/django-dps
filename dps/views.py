@@ -4,6 +4,7 @@ from dps.models import Transaction
 from dps.settings import TEMPLATE_ENGINE
 from django.template import RequestContext
 from django.http import HttpResponseRedirect
+from django.http import HttpResponseForbidden
 from pprint import pformat
 
 if TEMPLATE_ENGINE in ['jinja', 'jinja2']:
@@ -14,8 +15,15 @@ else:
 
 @dps_result_view
 def transaction_success(request, token, result=None):
-    transaction = get_object_or_404(Transaction.objects.filter(status__in=[Transaction.PROCESSING,
-                                                                          Transaction.SUCCESSFUL]),
+    # Check the transaction was actually successful, since there's nothing
+    # to stop DPS or whoever requesting the "success" url for a failed
+    # transaction
+    if result['Success'] != '1':
+        return HttpResponseForbidden('Transaction was unsuccessful')
+    
+    transaction = get_object_or_404(Transaction, 
+                                    status__in=[Transaction.PROCESSING,
+                                                Transaction.SUCCESSFUL],
                                     secret=token)
     transaction.result = pformat(result, width=1)
     transaction.save()
@@ -42,8 +50,15 @@ def transaction_success(request, token, result=None):
 
 @dps_result_view
 def transaction_failure(request, token, result=None):
-    transaction = get_object_or_404(Transaction.objects.filter(status__in=[Transaction.PROCESSING,
-                                                                           Transaction.FAILED]),
+    # Check the transaction actually failed, since there's nothing
+    # to stop DPS or whoever requesting the "failure" url for a successful
+    # transaction
+    if result['Success'] != '0':
+        return HttpResponseForbidden('Transaction was successful')
+    
+    transaction = get_object_or_404(Transaction,
+                                    status__in=[Transaction.PROCESSING,
+                                                Transaction.FAILED],
                                     secret=token)
     transaction.result = pformat(result, width=1)
     transaction.save()
