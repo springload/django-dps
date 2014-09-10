@@ -3,7 +3,9 @@ from django.contrib import admin
 from django.contrib.contenttypes import generic
 
 class TransactionAdmin(admin.ModelAdmin):
-    pass
+    list_display = ('amount', 'status', 'transaction_type', 'content_object', 
+                    'created',)
+    search_fields = ('secret', )
 
 
 class TransactionInlineAdmin(generic.GenericTabularInline):
