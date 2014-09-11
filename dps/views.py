@@ -6,6 +6,7 @@ from django.template import RequestContext
 from django.http import HttpResponseRedirect
 from django.http import HttpResponseForbidden
 from pprint import pformat
+from django.http import Http404
 
 if TEMPLATE_ENGINE in ['jinja', 'jinja2']:
     from coffin.shortcuts import render_to_response
@@ -19,7 +20,7 @@ def transaction_success(request, token, result=None):
     # to stop DPS or whoever requesting the "success" url for a failed
     # transaction
     if not result:
-        return HttpResponseForbidden('Could not retrieve transaction')
+        raise Http404('Could not retrieve transaction')
     if result['Success'] != '1':
         return HttpResponseForbidden('Transaction was unsuccessful')
     
@@ -56,7 +57,7 @@ def transaction_failure(request, token, result=None):
     # to stop DPS or whoever requesting the "failure" url for a successful
     # transaction
     if not result:
-        return HttpResponseForbidden('Could not retrieve transaction')
+        raise Http404('Could not retrieve transaction')
     if result['Success'] != '0':
         return HttpResponseForbidden('Transaction was successful')
     
