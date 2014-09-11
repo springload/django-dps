@@ -5,7 +5,8 @@ def dps_result_view(func):
     is an xml document of the DPS response/result.""" 
     def _inner(request, *args, **kwargs):
         result_token = request.GET.get("result")
-        kwargs["result"] = get_interactive_result(result_token)
+        if result_token:
+            kwargs["result"] = get_interactive_result(result_token)
         return func(request, *args, **kwargs)
 
     _inner.__name__ = func.__name__

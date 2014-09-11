@@ -18,6 +18,8 @@ def transaction_success(request, token, result=None):
     # Check the transaction was actually successful, since there's nothing
     # to stop DPS or whoever requesting the "success" url for a failed
     # transaction
+    if not result:
+        return HttpResponseForbidden('Could not retrieve transaction')
     if result['Success'] != '1':
         return HttpResponseForbidden('Transaction was unsuccessful')
     
@@ -53,6 +55,8 @@ def transaction_failure(request, token, result=None):
     # Check the transaction actually failed, since there's nothing
     # to stop DPS or whoever requesting the "failure" url for a successful
     # transaction
+    if not result:
+        return HttpResponseForbidden('Could not retrieve transaction')
     if result['Success'] != '0':
         return HttpResponseForbidden('Transaction was successful')
     
