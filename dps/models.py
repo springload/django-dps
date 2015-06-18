@@ -1,8 +1,10 @@
+import uuid
+from datetime import datetime
+
 from django.db import models
 from django.contrib.contenttypes.models import ContentType
-from django.contrib.contenttypes import generic
-from datetime import datetime
-import uuid
+from django.contrib.contenttypes.fields import GenericForeignKey
+
 
 def make_uuid():
     """the hyphens in uuids are unnecessary, and brevity will be an
@@ -35,7 +37,7 @@ class Transaction(models.Model):
 
     content_type = models.ForeignKey(ContentType)
     object_id = models.PositiveIntegerField()
-    content_object = generic.GenericForeignKey('content_type', 'object_id')
+    content_object = GenericForeignKey('content_type', 'object_id')
     
     created = models.DateTimeField(default=datetime.now)
     transaction_type = models.CharField(max_length=16, choices=TYPE_CHOICES,
@@ -136,4 +138,3 @@ class FullTransactionProtocol(object):
         """Called when a payment fails. Optional. May optionally return a 
            success url to take the place of views.transaction_failure."""
         pass
-

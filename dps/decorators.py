@@ -1,4 +1,5 @@
-from dps.transactions import get_interactive_result
+from .transactions import get_interactive_result
+
 
 def dps_result_view(func):
     """Calls the inner func with an additional 'result' kwarg, which

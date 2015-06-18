@@ -1,8 +1,10 @@
 import urllib, urllib2
+
 from xml.etree import cElementTree as ElementTree
 from django.conf import settings
 from django.http import HttpResponseRedirect
-from dps.models import Transaction
+
+from .models import Transaction
 
 
 def _get_setting(name):
@@ -181,4 +183,3 @@ def make_payment(content_object, request=None, transaction_opts={}):
         trans.save()
         callback(trans, False, status_updated)
         return (success, trans)
-

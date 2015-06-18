@@ -1,12 +1,12 @@
 from django.shortcuts import get_object_or_404
-from dps.decorators import dps_result_view
-from dps.models import Transaction
 from django.http import HttpResponseRedirect
 from django.http import HttpResponseForbidden
 from pprint import pformat
 from django.http import Http404
 from django.shortcuts import render_to_response
 
+from .decorators import dps_result_view
+from .models import Transaction
 
 
 @dps_result_view

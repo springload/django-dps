@@ -1,6 +1,8 @@
-from dps.models import Transaction
 from django.contrib import admin
 from django.contrib.contenttypes import generic
+
+from .models import Transaction
+
 
 class TransactionAdmin(admin.ModelAdmin):
     list_display = ('amount', 'status', 'transaction_type', 'content_object', 
