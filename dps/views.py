@@ -1,17 +1,12 @@
 from django.shortcuts import get_object_or_404
 from dps.decorators import dps_result_view
 from dps.models import Transaction
-from dps.settings import TEMPLATE_ENGINE
-from django.template import RequestContext
 from django.http import HttpResponseRedirect
 from django.http import HttpResponseForbidden
 from pprint import pformat
 from django.http import Http404
+from django.shortcuts import render_to_response
 
-if TEMPLATE_ENGINE in ['jinja', 'jinja2']:
-    from coffin.shortcuts import render_to_response
-else:
-    from django.shortcuts import render_to_response
 
 
 @dps_result_view
@@ -47,8 +42,9 @@ def transaction_success(request, token, result=None):
         # assumed to be a valid url
         return HttpResponseRedirect(success_url)
     else:
-        return render_to_response("dps/transaction_success.html", RequestContext(request, {
-                    "transaction": transaction}))
+        return render_to_response("dps/transaction_success.html", {
+                    "request": request,
+                    "transaction": transaction})
 
 
 @dps_result_view
@@ -81,6 +77,6 @@ def transaction_failure(request, token, result=None):
         # assumed to be a valid url
         return HttpResponseRedirect(failure_url)
     else:
-        return render_to_response("dps/transaction_failure.html", RequestContext(request, {
-                "transaction": transaction}))
-
+        return render_to_response("dps/transaction_failure.html", {
+                "request": request,
+                "transaction": transaction})

@@ -34,15 +34,6 @@ Then, just call this function:
   This allows you to do anything, really, as you could override
   default parameters, provide credit-card details directly, specify a
   refund rather than purchase – anything DPS supports.
-  
-Also supports the [jinja2](http://jinja.pocoo.org/) template engine,
-if that is your wish (as it is mine.) Simply add:
-
-    DPS_TEMPLATE_ENGINE = 'jinja' # or 'jinja2', it's not fussy
-
-To your `settings.py`. (This depends on
-[coffin](https://github.com/coffin/coffin/) being installed, as I rely
-on its `render_to_response`.)
 
 To put an accessor/relationship on your own model to it's
 transactions, just use GenericRelation:
