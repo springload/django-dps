@@ -1,53 +1,33 @@
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
+
+from django.db import models, migrations
 import datetime
-from south.db import db
-from south.v2 import SchemaMigration
-from django.db import models
+import dps.models
 
 
-class Migration(SchemaMigration):
+class Migration(migrations.Migration):
 
-    def forwards(self, orm):
-        # Adding model 'Transaction'
-        db.create_table('dps_transaction', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('content_type', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['contenttypes.ContentType'])),
-            ('object_id', self.gf('django.db.models.fields.PositiveIntegerField')()),
-            ('created', self.gf('django.db.models.fields.DateTimeField')(default=datetime.datetime.now)),
-            ('transaction_type', self.gf('django.db.models.fields.CharField')(default='Purchase', max_length=16)),
-            ('status', self.gf('django.db.models.fields.CharField')(default='pending', max_length=16)),
-            ('amount', self.gf('django.db.models.fields.DecimalField')(null=True, max_digits=10, decimal_places=2)),
-            ('secret', self.gf('django.db.models.fields.CharField')(default='14f4d07a8cec4c74b19792e42fe08be8', unique=True, max_length=32, db_index=True)),
-            ('result', self.gf('django.db.models.fields.TextField')(blank=True)),
-        ))
-        db.send_create_signal('dps', ['Transaction'])
+    dependencies = [
+        ('contenttypes', '0002_remove_content_type_name'),
+    ]
 
-
-    def backwards(self, orm):
-        # Deleting model 'Transaction'
-        db.delete_table('dps_transaction')
-
-
-    models = {
-        'contenttypes.contenttype': {
-            'Meta': {'ordering': "('name',)", 'unique_together': "(('app_label', 'model'),)", 'object_name': 'ContentType', 'db_table': "'django_content_type'"},
-            'app_label': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'model': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
-            'name': ('django.db.models.fields.CharField', [], {'max_length': '100'})
-        },
-        'dps.transaction': {
-            'Meta': {'ordering': "('-created', '-id')", 'object_name': 'Transaction'},
-            'amount': ('django.db.models.fields.DecimalField', [], {'null': 'True', 'max_digits': '10', 'decimal_places': '2'}),
-            'content_type': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['contenttypes.ContentType']"}),
-            'created': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'object_id': ('django.db.models.fields.PositiveIntegerField', [], {}),
-            'result': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
-            'secret': ('django.db.models.fields.CharField', [], {'default': "'91122fc207c64640a427a9d3ddc41877'", 'unique': 'True', 'max_length': '32', 'db_index': 'True'}),
-            'status': ('django.db.models.fields.CharField', [], {'default': "'pending'", 'max_length': '16'}),
-            'transaction_type': ('django.db.models.fields.CharField', [], {'default': "'Purchase'", 'max_length': '16'})
-        }
-    }
-
-    complete_apps = ['dps']
+    operations = [
+        migrations.CreateModel(
+            name='Transaction',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('object_id', models.PositiveIntegerField()),
+                ('created', models.DateTimeField(default=datetime.datetime.now)),
+                ('transaction_type', models.CharField(default=b'Purchase', max_length=16, choices=[(b'Purchase', b'Purchase'), (b'Auth', b'Auth'), (b'Complete', b'Complete'), (b'Refund', b'Refund'), (b'Validate', b'Validate')])),
+                ('status', models.CharField(default=b'pending', max_length=16, choices=[(b'pending', b'Pending'), (b'processing', b'Processing'), (b'successful', b'Successful'), (b'failed', b'Failed')])),
+                ('amount', models.DecimalField(null=True, max_digits=10, decimal_places=2)),
+                ('secret', models.CharField(default=dps.models.make_uuid, unique=True, max_length=32, editable=False, db_index=True)),
+                ('result', models.TextField(blank=True)),
+                ('content_type', models.ForeignKey(to='contenttypes.ContentType')),
+            ],
+            options={
+                'ordering': ('-created', '-id'),
+            },
+        ),
+    ]
