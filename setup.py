@@ -10,9 +10,12 @@ if os.path.exists('README.txt'):
 else:
     readme_path = 'README.md'
 
+# avoid importing the module 
+exec(open('dps/_version.py').read())
+
 setup(
     name='django-dps',
-    version='0.2',
+    version=__version__,
     packages=find_packages(),
     license='BSD License',
     url="https://github.com/gregplaysguitar/django-dps/",
