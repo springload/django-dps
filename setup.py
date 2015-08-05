@@ -1,7 +1,14 @@
 #!/usr/bin/env python
 
+import os
 
 from setuptools import setup, find_packages
+
+# if there's a converted (rst) readme, use it, otherwise fall back to markdown
+if os.path.exists('README.txt'):
+    readme_path = 'README.txt'
+else:
+    readme_path = 'README.md'
 
 setup(
     name='django-dps',
@@ -14,7 +21,7 @@ setup(
     maintainer_email="gregplaysguitar@gmail.com",
 
     description='Django integrations for the DPS payment gateway',
-    long_description=open('README.md').read(),
+    long_description=open(readme_path).read(),
 
     install_requires=[
         'Django>=1.6',
