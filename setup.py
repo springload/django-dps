@@ -21,7 +21,7 @@ setup(
     url="https://github.com/gregplaysguitar/django-dps/",
 
     maintainer="Greg Brown",
-    maintainer_email="gregplaysguitar@gmail.com",
+    maintainer_email="greg@gregbrown.co.nz",
 
     description='Django integrations for the DPS payment gateway',
     long_description=open(readme_path).read(),
