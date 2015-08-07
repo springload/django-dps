@@ -5,12 +5,12 @@ import os
 from setuptools import setup, find_packages
 
 # if there's a converted (rst) readme, use it, otherwise fall back to markdown
-if os.path.exists('README.txt'):
-    readme_path = 'README.txt'
+if os.path.exists('README.rst'):
+    readme_path = 'README.rst'
 else:
     readme_path = 'README.md'
 
-# avoid importing the module 
+# avoid importing the module
 exec(open('dps/_version.py').read())
 
 setup(
