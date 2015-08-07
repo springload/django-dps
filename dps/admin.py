@@ -5,7 +5,7 @@ from .models import Transaction
 
 
 class TransactionAdmin(admin.ModelAdmin):
-    list_display = ('amount', 'status', 'transaction_type', 
+    list_display = ('amount', 'status', 'transaction_type',
                     'content_object', 'created',)
     search_fields = ('secret', )
 

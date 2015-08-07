@@ -3,7 +3,7 @@ from .transactions import get_interactive_result
 
 def dps_result_view(func):
     """Calls the inner func with an additional 'result' kwarg, which
-    is an xml document of the DPS response/result.""" 
+       is an xml document of the DPS response/result."""
     def _inner(request, *args, **kwargs):
         result_token = request.GET.get("result")
         if result_token:

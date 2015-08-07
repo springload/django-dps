@@ -16,7 +16,8 @@ def make_uuid():
 class TransactionManager(models.Manager):
     def for_object(self, obj):
         ctype = ContentType.objects.get_for_model(obj)
-        return self.get_query_set().filter(content_type=ctype, object_id=obj.id)
+        return self.get_query_set().filter(content_type=ctype,
+                                           object_id=obj.id)
 
 
 class Transaction(models.Model):
@@ -27,7 +28,7 @@ class Transaction(models.Model):
     VALIDATE = "Validate"
     TYPE_CHOICES = [(s, s.title()) for s in
                     [PURCHASE, AUTH, COMPLETE, REFUND, VALIDATE]]
-    
+
     PENDING = "pending"
     PROCESSING = "processing"
     SUCCESSFUL = "successful"
@@ -38,7 +39,7 @@ class Transaction(models.Model):
     content_type = models.ForeignKey(ContentType)
     object_id = models.PositiveIntegerField()
     content_object = GenericForeignKey('content_type', 'object_id')
-    
+
     created = models.DateTimeField(default=datetime.now)
     transaction_type = models.CharField(max_length=16, choices=TYPE_CHOICES,
                                         default=PURCHASE)
@@ -51,29 +52,30 @@ class Transaction(models.Model):
     result = models.TextField(blank=True)
 
     objects = TransactionManager()
-    
+
     class Meta:
         ordering = ('-created', '-id')
 
     def __unicode__(self):
-        return u"%s %s of $%.2f on %s" % (self.get_status_display(),
-                                         self.get_transaction_type_display().lower(),
-                                         self.amount, unicode(self.created))
-    
+        return u"%s %s of $%.2f on %s" % (
+                self.get_status_display(),
+                self.get_transaction_type_display().lower(),
+                self.amount, unicode(self.created))
+
     def set_status(self, status):
-        '''Atomically set transaction status, returning True if the status was 
+        '''Atomically set transaction status, returning True if the status was
            changed or False if it was already set to this value.'''
-        
+
         return bool(Transaction.objects.exclude(status=status)
                                        .filter(id=self.id)
                                        .update(status=status))
-    
+
     def save(self, **kwargs):
         if self.content_object and not self.amount:
             self.amount = self.content_object.get_amount()
 
         return super(Transaction, self).save(**kwargs)
-    
+
     @models.permalink
     def get_success_url(self):
         return ('dps.views.transaction_success', [self.secret])
@@ -94,18 +96,18 @@ class Transaction(models.Model):
         return (u"%s/%d" % (self.secret, self.pk))[-16:]
 
 
-## Two choices follow. BasicTransactionProtocol is the minimal subset
-## required to get purchasing happening; FullTransactionProtocol
-## supports notifications and recurring billing.
+# Two choices follow. BasicTransactionProtocol is the minimal subset
+# required to get purchasing happening; FullTransactionProtocol
+# supports notifications and recurring billing.
 
 class BasicTransactionProtocol(object):
     """This is the minimal subset of the protocol required. Just
     implement 'amount'. This implementation will not support recurring
     payments, or success/failure notifications."""
-    
+
     def amount(self):
         raise NotImplementedError()
-    
+
     def is_recurring(self):
         return False
 
@@ -130,11 +132,11 @@ class FullTransactionProtocol(object):
         raise NotImplementedError()
 
     def transaction_succeeded(self, transaction, interactive, status_updated):
-        """Called when a payment succeeds. Optional. May optionally return a 
+        """Called when a payment succeeds. Optional. May optionally return a
            success url to take the place of views.transaction_success."""
         pass
 
     def transaction_failed(self, transaction, interactive, status_updated):
-        """Called when a payment fails. Optional. May optionally return a 
+        """Called when a payment fails. Optional. May optionally return a
            success url to take the place of views.transaction_failure."""
         pass
