@@ -27,7 +27,7 @@ setup(
     long_description=open(readme_path).read(),
 
     install_requires=[
-        'Django>=1.6',
+        'Django>=1.7',
     ],
 
     include_package_data=True,
