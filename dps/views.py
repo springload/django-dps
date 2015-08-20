@@ -23,7 +23,7 @@ def transaction_success(request, token, result=None):
                                     status__in=[Transaction.PROCESSING,
                                                 Transaction.SUCCESSFUL],
                                     secret=token)
-    transaction.result = pformat(result, width=1)
+    transaction.result_dict = result
     transaction.save()
 
     status_updated = transaction.set_status(Transaction.SUCCESSFUL)
@@ -62,7 +62,7 @@ def transaction_failure(request, token, result=None):
                                     status__in=[Transaction.PROCESSING,
                                                 Transaction.FAILED],
                                     secret=token)
-    transaction.result = pformat(result, width=1)
+    transaction.result_dict = result
     transaction.save()
 
     status_updated = transaction.set_status(Transaction.FAILED)
