@@ -60,9 +60,9 @@ class Transaction(models.Model):
 
     def __unicode__(self):
         return u"%s %s of $%.2f on %s" % (
-                self.get_status_display(),
-                self.get_transaction_type_display().lower(),
-                self.amount, unicode(self.created))
+               self.get_status_display(),
+               self.get_transaction_type_display().lower(),
+               self.amount, unicode(self.created))
 
     def set_status(self, status):
         '''Atomically set transaction status, returning True if the status was
