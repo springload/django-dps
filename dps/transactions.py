@@ -98,7 +98,7 @@ def get_interactive_result(result_key):
         output[key] = result.find(key).text
 
     output["valid"] = result.get("valid")
-    
+
     return output
 
 
@@ -115,7 +115,7 @@ def offline_payment(params):
     merged_params = {}
     merged_params.update(PXPOST_DEFAULTS)
     merged_params.update(params)
-    
+
     result = _get_response(PXPOST_URL,
                            _params_to_xml_doc(merged_params, root="Txn"))
 
@@ -132,14 +132,13 @@ def offline_payment(params):
         result = _get_response(PXPOST_URL,
                                _params_to_xml_doc(status_params, root="Txn"))
 
-        
     success = result.find(".//Authorized").text == "1"
     return (success, ElementTree.tostring(result))
 
 
 def make_payment(content_object, request=None, transaction_opts={}):
     """Main entry point. If we have a request we do it interactive, otherwise it's a batch/offline payment."""
-    
+
     trans = Transaction(content_object=content_object)
     trans.status = Transaction.PROCESSING
     trans.save()
@@ -164,7 +163,7 @@ def make_payment(content_object, request=None, transaction_opts={}):
         # set up for an offline/batch payment.
         params.update({"DpsBillingId": content_object.get_billing_token(),
                        "TxnId": trans.transaction_id})
-    
+
     params.update(transaction_opts)
 
     if request:
