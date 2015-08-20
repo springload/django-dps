@@ -50,3 +50,15 @@ with your own model admins like so:
         inlines = [TransactionInlineAdmin]
         
     admin.site.register(MyModel, MyModelAdmin)
+
+## Running tests
+
+Create a file called tests/dps_settings.py and add `PXPAY_USERID` and
+`PXPAY_KEY` values - you'll need valid PXPAY testing credentials.
+Then, assuming virtualenvwrapper is installed:
+
+    > cd path-to/django-dps
+    > mkvirtualenv test
+    > pip install requests
+    > ./setup.py install
+    > ./runtests.py
