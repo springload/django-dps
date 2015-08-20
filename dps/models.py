@@ -115,7 +115,7 @@ class BasicTransactionProtocol(object):
     implement 'amount'. This implementation will not support recurring
     payments, or success/failure notifications."""
 
-    def amount(self):
+    def get_amount(self):
         raise NotImplementedError()
 
     def is_recurring(self):
