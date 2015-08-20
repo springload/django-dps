@@ -177,9 +177,9 @@ def make_payment(content_object, request=None, transaction_opts={}):
                                lambda *args: None)
         else:
             status_updated = trans.set_status(Transaction.FAILED)
-            callback = getattr(content_object, "transaction_failed", 
+            callback = getattr(content_object, "transaction_failed",
                                lambda *args: None)
-        trans.result = result
+        trans.result_dict = result
         trans.save()
         callback(trans, False, status_updated)
         return (success, trans)

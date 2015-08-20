@@ -1,4 +1,6 @@
 import uuid
+import json
+
 from datetime import datetime
 
 from django.db import models
@@ -69,6 +71,14 @@ class Transaction(models.Model):
         return bool(Transaction.objects.exclude(status=status)
                                        .filter(id=self.id)
                                        .update(status=status))
+
+    def get_result_dict(self):
+        return json.loads(self.result)
+
+    def set_result_dict(self, result_dict):
+        self.result = json.dumps(result_dict, indent=4, sort_keys=True)
+
+    result_dict = property(get_result_dict, set_result_dict)
 
     def save(self, **kwargs):
         if self.content_object and not self.amount:
