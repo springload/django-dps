@@ -15,11 +15,10 @@ def make_uuid():
     return str(u).replace('-', '')
 
 
-class TransactionManager(models.Manager):
+class TransactionQuerySet(models.QuerySet):
     def for_object(self, obj):
         ctype = ContentType.objects.get_for_model(obj)
-        return self.get_query_set().filter(content_type=ctype,
-                                           object_id=obj.id)
+        return self.filter(content_type=ctype, object_id=obj.id)
 
 
 class Transaction(models.Model):
@@ -53,7 +52,7 @@ class Transaction(models.Model):
                               unique=True, db_index=True)
     result = models.TextField(blank=True)
 
-    objects = TransactionManager()
+    objects = TransactionQuerySet.as_manager()
 
     class Meta:
         ordering = ('-created', '-id')
