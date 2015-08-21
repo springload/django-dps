@@ -6,13 +6,15 @@ from datetime import datetime
 from django.db import models
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
+from django.utils.encoding import python_2_unicode_compatible
+from django.utils.six import text_type
 
 
 def make_uuid():
     """the hyphens in uuids are unnecessary, and brevity will be an
     advantage in our urls."""
     u = uuid.uuid4()
-    return str(u).replace('-', '')
+    return text_type(u).replace('-', '')
 
 
 class TransactionQuerySet(models.QuerySet):
@@ -21,6 +23,7 @@ class TransactionQuerySet(models.QuerySet):
         return self.filter(content_type=ctype, object_id=obj.id)
 
 
+@python_2_unicode_compatible
 class Transaction(models.Model):
     PURCHASE = "Purchase"
     AUTH = "Auth"
@@ -57,7 +60,7 @@ class Transaction(models.Model):
     class Meta:
         ordering = ('-created', '-id')
 
-    def __unicode__(self):
+    def __str__(self):
         return u"%s %s of $%.2f on %s" % (
                self.get_status_display(),
                self.get_transaction_type_display().lower(),
@@ -96,7 +99,7 @@ class Transaction(models.Model):
     @property
     def merchant_reference(self):
         # Seems to have an undocumented 50 char limit
-        return (u"(#%d) %s" % (self.pk, unicode(self.content_object)))[:50]
+        return (u"(#%d) %s" % (self.pk, text_type(self.content_object)))[:50]
 
     @property
     def transaction_id(self):

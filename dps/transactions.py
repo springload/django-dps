@@ -1,8 +1,8 @@
-import urllib, urllib2
-
 from xml.etree import cElementTree as ElementTree
 from django.conf import settings
 from django.http import HttpResponseRedirect
+from django.utils.six import text_type
+from django.utils.six.moves.urllib.request import Request, urlopen
 
 from .models import Transaction
 
@@ -34,8 +34,8 @@ PXPOST_DEFAULTS = {
 
 def _get_response(url, xml_body):
     """Takes and returns an ElementTree xml document."""
-    req = urllib2.Request(url, ElementTree.tostring(xml_body, encoding='utf-8'))
-    response = urllib2.urlopen(req)
+    req = Request(url, ElementTree.tostring(xml_body, encoding='utf-8'))
+    response = urlopen(req)
     ret = ElementTree.fromstring(response.read())
     response.close()
     return ret
@@ -52,7 +52,7 @@ def _params_to_xml_doc(params, root="GenerateRequest"):
         if isinstance(value, Exception):
             raise value
         elem = ElementTree.Element(key)
-        elem.text = unicode(value)
+        elem.text = text_type(value)
         root_tag.append(elem)
 
     return root_tag
@@ -109,7 +109,7 @@ def offline_payment(params):
                 params.get("DpsBillingId", None) or
                 (params.get("CardNumber", None) and params.get("Cvc2", None)))
         assert params.get("TxnId", None)
-    except AssertionError, e:
+    except AssertionError as e:
         return (False, e)
 
     merged_params = {}

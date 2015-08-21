@@ -15,4 +15,4 @@ INSTALLED_APPS = [
 
 ROOT_URLCONF = "tests.urls"
 
-from dps_settings import *
+from .dps_settings import *
