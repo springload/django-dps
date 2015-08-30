@@ -1,3 +1,4 @@
 MANIFEST
 *.egg-info/
 /tests/dps_settings.py
+.tox/
