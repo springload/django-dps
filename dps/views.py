@@ -1,7 +1,6 @@
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponseRedirect
 from django.http import HttpResponseForbidden
-from pprint import pformat
 from django.http import Http404
 from django.shortcuts import render_to_response
 
@@ -34,18 +33,17 @@ def transaction_success(request, token, result=None):
         content_object.set_billing_token(result["DpsBillingId"] or None)
 
     # callback, if it exists. It may optionally return a url for redirection
-    success_url = getattr(content_object,
-                          "transaction_succeeded",
-                          lambda *args: None)(transaction, True,
-                                              status_updated)
+    success_cb = getattr(content_object, "transaction_succeeded",
+                         lambda *args: None)
+    success_url = success_cb(transaction, True, status_updated)
 
     if success_url:
         # assumed to be a valid url
         return HttpResponseRedirect(success_url)
     else:
         return render_to_response("dps/transaction_success.html", {
-                    "request": request,
-                    "transaction": transaction})
+            "request": request,
+            "transaction": transaction})
 
 
 @dps_result_view
@@ -70,15 +68,14 @@ def transaction_failure(request, token, result=None):
     content_object = transaction.content_object
 
     # callback, if it exists. It may optionally return a url for redirection
-    failure_url = getattr(content_object,
-                          "transaction_failed",
-                          lambda *args: None)(transaction, True,
-                                              status_updated)
+    failure_cb = getattr(content_object, "transaction_failed",
+                         lambda *args: None)
+    failure_url = failure_cb(transaction, True, status_updated)
 
     if failure_url:
         # assumed to be a valid url
         return HttpResponseRedirect(failure_url)
     else:
         return render_to_response("dps/transaction_failure.html", {
-                "request": request,
-                "transaction": transaction})
+            "request": request,
+            "transaction": transaction})

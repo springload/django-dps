@@ -1,8 +1,8 @@
-import urllib, urllib2
-
 from xml.etree import cElementTree as ElementTree
 from django.conf import settings
 from django.http import HttpResponseRedirect
+from django.utils.six import text_type
+from django.utils.six.moves.urllib.request import Request, urlopen
 
 from .models import Transaction
 
@@ -34,8 +34,8 @@ PXPOST_DEFAULTS = {
 
 def _get_response(url, xml_body):
     """Takes and returns an ElementTree xml document."""
-    req = urllib2.Request(url, ElementTree.tostring(xml_body, encoding='utf-8'))
-    response = urllib2.urlopen(req)
+    req = Request(url, ElementTree.tostring(xml_body, encoding='utf-8'))
+    response = urlopen(req)
     ret = ElementTree.fromstring(response.read())
     response.close()
     return ret
@@ -52,7 +52,7 @@ def _params_to_xml_doc(params, root="GenerateRequest"):
         if isinstance(value, Exception):
             raise value
         elem = ElementTree.Element(key)
-        elem.text = unicode(value)
+        elem.text = text_type(value)
         root_tag.append(elem)
 
     return root_tag
@@ -98,7 +98,7 @@ def get_interactive_result(result_key):
         output[key] = result.find(key).text
 
     output["valid"] = result.get("valid")
-    
+
     return output
 
 
@@ -109,13 +109,13 @@ def offline_payment(params):
                 params.get("DpsBillingId", None) or
                 (params.get("CardNumber", None) and params.get("Cvc2", None)))
         assert params.get("TxnId", None)
-    except AssertionError, e:
+    except AssertionError as e:
         return (False, e)
 
     merged_params = {}
     merged_params.update(PXPOST_DEFAULTS)
     merged_params.update(params)
-    
+
     result = _get_response(PXPOST_URL,
                            _params_to_xml_doc(merged_params, root="Txn"))
 
@@ -132,14 +132,13 @@ def offline_payment(params):
         result = _get_response(PXPOST_URL,
                                _params_to_xml_doc(status_params, root="Txn"))
 
-        
     success = result.find(".//Authorized").text == "1"
     return (success, ElementTree.tostring(result))
 
 
 def make_payment(content_object, request=None, transaction_opts={}):
     """Main entry point. If we have a request we do it interactive, otherwise it's a batch/offline payment."""
-    
+
     trans = Transaction(content_object=content_object)
     trans.status = Transaction.PROCESSING
     trans.save()
@@ -164,7 +163,7 @@ def make_payment(content_object, request=None, transaction_opts={}):
         # set up for an offline/batch payment.
         params.update({"DpsBillingId": content_object.get_billing_token(),
                        "TxnId": trans.transaction_id})
-    
+
     params.update(transaction_opts)
 
     if request:

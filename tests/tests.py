@@ -1,6 +1,7 @@
 import requests
 
 from django.test import TestCase, RequestFactory
+from django.utils.six import text_type
 from dps.transactions import make_payment
 
 from .models import Payment
@@ -20,8 +21,8 @@ class DpsTestCase(TestCase):
         response = requests.get(response['Location'])
 
         # check the dps page looks approximately correct
-        self.assertIn('Payment Checkout', response.content)
-        self.assertIn(str(amount), response.content)
+        self.assertIn('Payment Checkout', response.text)
+        self.assertIn(text_type(amount), response.text)
 
     def test_recurring(self):
         pass

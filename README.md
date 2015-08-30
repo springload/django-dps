@@ -62,3 +62,10 @@ Then, assuming virtualenvwrapper is installed:
     > pip install requests
     > ./setup.py install
     > ./runtests.py
+
+To run the tests across all supported Python and Django versions, use `tox`:
+
+    > cd path-to/django-dps
+    > mkvirtualenv test
+    > pip install tox
+    > tox

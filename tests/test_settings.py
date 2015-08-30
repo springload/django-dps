@@ -1,7 +1,7 @@
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME':  'test.sqlite',
+        'NAME': 'test.sqlite',
     }
 }
 
@@ -15,4 +15,4 @@ INSTALLED_APPS = [
 
 ROOT_URLCONF = "tests.urls"
 
-from dps_settings import *
+from .dps_settings import *
