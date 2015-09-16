@@ -92,14 +92,6 @@ class Transaction(models.Model):
 
         return super(Transaction, self).save(**kwargs)
 
-    @models.permalink
-    def get_success_url(self):
-        return ('dps.views.transaction_success', [self.secret])
-
-    @models.permalink
-    def get_failure_url(self):
-        return ('dps.views.transaction_failure', [self.secret])
-
     @property
     def merchant_reference(self):
         # Seems to have an undocumented 50 char limit

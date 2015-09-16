@@ -1,45 +1,11 @@
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponseRedirect
 from django.http import HttpResponseForbidden
-from django.http import Http404
 from django.shortcuts import render_to_response
+from django.core.urlresolvers import reverse
 
 from .decorators import dps_result_view
 from .models import Transaction
-
-
-@dps_result_view
-def transaction_success(request, token, result=None):
-    # Check the transaction was actually successful, since there's nothing
-    # to stop DPS or whoever requesting the "success" url for a failed
-    # transaction
-    if not result:
-        raise Http404('Could not retrieve transaction')
-    if result['Success'] != '1':
-        return HttpResponseForbidden('Transaction was unsuccessful')
-
-    transaction = get_object_or_404(Transaction,
-                                    status__in=[Transaction.PROCESSING,
-                                                Transaction.SUCCESSFUL],
-                                    secret=token)
-    transaction.result_dict = result
-    transaction.save()
-
-    status_updated = transaction.set_status(Transaction.SUCCESSFUL)
-
-    # if we're recurring, we need to save the billing token now.
-    content_object = transaction.content_object
-    if content_object.is_recurring():
-        content_object.set_billing_token(result["DpsBillingId"] or None)
-
-    # callback, if it exists. It may optionally return a url for redirection
-    success_cb = getattr(content_object, "transaction_succeeded",
-                         lambda *args: None)
-    success_url = success_cb(transaction, True, status_updated)
-
-    if success_url:
-        # assumed to be a valid url
-        return HttpResponseRedirect(success_url)
     else:
         return render_to_response("dps/transaction_success.html", {
             "request": request,
@@ -47,35 +13,51 @@ def transaction_success(request, token, result=None):
 
 
 @dps_result_view
-def transaction_failure(request, token, result=None):
-    # Check the transaction actually failed, since there's nothing
-    # to stop DPS or whoever requesting the "failure" url for a successful
-    # transaction
-    if not result:
-        raise Http404('Could not retrieve transaction')
-    if result['Success'] != '0':
-        return HttpResponseForbidden('Transaction was successful')
+def process_transaction(request, token, result):
+    """Process a pxpay transaction using the result retrieved from dps, and
+       redirect to the appropriate "success" or "failure" page. """
 
-    transaction = get_object_or_404(Transaction,
-                                    status__in=[Transaction.PROCESSING,
-                                                Transaction.FAILED],
-                                    secret=token)
+    # once a transaction is completed, it can't be processed again, so only
+    # retrieve PROCESSING transactions
+    transaction = get_object_or_404(Transaction, secret=token,
+                                    status=Transaction.PROCESSING)
+
+    # save transaction result in all cases
     transaction.result_dict = result
     transaction.save()
 
-    status_updated = transaction.set_status(Transaction.FAILED)
+    success = result['Success'] == '1'
 
-    content_object = transaction.content_object
+    # update transaction status according to success
+    if success:
+        status_updated = transaction.set_status(Transaction.SUCCESSFUL)
 
-    # callback, if it exists. It may optionally return a url for redirection
-    failure_cb = getattr(content_object, "transaction_failed",
-                         lambda *args: None)
-    failure_url = failure_cb(transaction, True, status_updated)
-
-    if failure_url:
-        # assumed to be a valid url
-        return HttpResponseRedirect(failure_url)
+        # if recurring payments are required, save the billing token
+        content_object = transaction.content_object
+        if content_object.is_recurring():
+            content_object.set_billing_token(result["DpsBillingId"] or None)
     else:
-        return render_to_response("dps/transaction_failure.html", {
-            "request": request,
-            "transaction": transaction})
+        status_updated = transaction.set_status(Transaction.FAILED)
+
+    # call the callback if it exists
+    callback_name = 'transaction_succeeded' if success else \
+                    'transaction_failed'
+    callback = getattr(transaction.content_object, callback_name, None)
+    if callback:
+        redirect_url = callback(transaction, True, status_updated)
+    else:
+        redirect_url = None
+
+    return HttpResponseRedirect(
+        redirect_url or reverse('transaction_result', (transaction.secret, )))
+
+
+def transaction_result(request, token):
+    transaction = get_object_or_404(Transaction, secret=token,
+                                    status__in=[Transaction.SUCCESSFUL,
+                                                Transaction.FAILED])
+    return render_to_response("dps/transaction_success.html", {
+        "request": request,
+        "transaction": transaction,
+        "success": (transaction.status == Transaction.SUCCESSFUL),
+    })

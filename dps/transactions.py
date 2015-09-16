@@ -3,6 +3,7 @@ from django.conf import settings
 from django.http import HttpResponseRedirect
 from django.utils.six import text_type
 from django.utils.six.moves.urllib.request import Request, urlopen
+from django.core.urlresolvers import reverse
 
 from .models import Transaction
 
@@ -161,9 +162,10 @@ def make_payment(content_object, request=None, transaction_opts={}):
 
     if request:
         # set up params for an interactive payment
-        url_root = u"http://%s" % request.META['HTTP_HOST']
-        params.update({"UrlFail": url_root + trans.get_failure_url(),
-                       "UrlSuccess": url_root + trans.get_success_url()})
+        return_url = u"http://%s" % request.META['HTTP_HOST'] + \
+                     reverse('dps_process_transaction', (trans.secret, ))
+        params.update({"UrlFail": return_url,
+                       "UrlSuccess": return_url})
         if getattr(content_object, "is_recurring", lambda: False)():
             assert hasattr(content_object, "set_billing_token")
             assert hasattr(content_object, "get_billing_token")
