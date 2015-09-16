@@ -70,6 +70,10 @@ class Transaction(models.Model):
         '''Atomically set transaction status, returning True if the status was
            changed or False if it was already set to this value.'''
 
+        # set value on the instance too, so that subsequent save() calls don't
+        # clobber the database update
+        self.status = status
+
         return bool(Transaction.objects.exclude(status=status)
                                        .filter(id=self.id)
                                        .update(status=status))
