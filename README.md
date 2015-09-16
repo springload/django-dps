@@ -9,24 +9,24 @@ and `PXPAY_KEY` for interactive payments and recurring payment setup,
 and `PXPOST_USERID` and `PXPOST_KEY` for non-interactive and recurring
 billing.
 
-You'll also need to `include('dps.urls')` in your urls somewhere.
+You'll also need to `include('django_dps.urls')` in your urls somewhere.
 
 Then, just call this function:
 
-`dps.transactions.make_payment(obj, request=None, attrs={})` where:
+`django_dps.transactions.make_payment(obj, request=None, attrs={})` where:
 
-* `obj` implements `dps.models.BasicTransactionProtocol` or
-  `dps.models.FullTransactionProtocol`.
+* `obj` implements `django_dps.models.BasicTransactionProtocol` or
+  `django_dps.models.FullTransactionProtocol`.
 
-* `request` is a Django request object or `None`. 
+* `request` is a Django request object or `None`.
 
   If you intend to make an interactive payment e.g. by redirecting the
   user to the DPS page, then provide a request. (It's needed to build
   fully-specified URLs for DPS to redirect back to.)
-  
+
   If `request` is `None`, the function will attempt to find and use a
   stored billing token (as described in the protocol implementations
-  in `dps/models.py`) and make a non-interactive recurring payment.
+  in `django_dps/models.py`) and make a non-interactive recurring payment.
 
 * `attrs` is a dictionary of PxPay or PxPost request parameters to be
   merged in to the transaction request to DPS.
@@ -41,14 +41,14 @@ transactions, just use GenericRelation:
     class MyModel(models.Model):
         ...
         transactions = generic.GenericRelation(Transaction)
-        
-There's also a `dps.admin.TransactionInlineAdmin` which you can use
+
+There's also a `django_dps.admin.TransactionInlineAdmin` which you can use
 with your own model admins like so:
 
     class MyModelAdmin(admin.ModelAdmin):
         ...
         inlines = [TransactionInlineAdmin]
-        
+
     admin.site.register(MyModel, MyModelAdmin)
 
 ## Running tests

@@ -9,7 +9,7 @@ class Migration(SchemaMigration):
 
     def forwards(self, orm):
         # Adding model 'Transaction'
-        db.create_table('dps_transaction', (
+        db.create_table('django_dps_transaction', (
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('content_type', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['contenttypes.ContentType'])),
             ('object_id', self.gf('django.db.models.fields.PositiveIntegerField')()),
@@ -20,12 +20,12 @@ class Migration(SchemaMigration):
             ('secret', self.gf('django.db.models.fields.CharField')(default='14f4d07a8cec4c74b19792e42fe08be8', unique=True, max_length=32, db_index=True)),
             ('result', self.gf('django.db.models.fields.TextField')(blank=True)),
         ))
-        db.send_create_signal('dps', ['Transaction'])
+        db.send_create_signal('django_dps', ['Transaction'])
 
 
     def backwards(self, orm):
         # Deleting model 'Transaction'
-        db.delete_table('dps_transaction')
+        db.delete_table('django_dps_transaction')
 
 
     models = {
@@ -36,7 +36,7 @@ class Migration(SchemaMigration):
             'model': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '100'})
         },
-        'dps.transaction': {
+        'django_dps.transaction': {
             'Meta': {'ordering': "('-created', '-id')", 'object_name': 'Transaction'},
             'amount': ('django.db.models.fields.DecimalField', [], {'null': 'True', 'max_digits': '10', 'decimal_places': '2'}),
             'content_type': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['contenttypes.ContentType']"}),
@@ -50,4 +50,4 @@ class Migration(SchemaMigration):
         }
     }
 
-    complete_apps = ['dps']
+    complete_apps = ['django_dps']

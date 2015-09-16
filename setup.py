@@ -11,7 +11,7 @@ else:
     readme_path = 'README.md'
 
 # avoid importing the module
-exec(open('dps/_version.py').read())
+exec(open('django_dps/_version.py').read())
 
 setup(
     name='django-dps',

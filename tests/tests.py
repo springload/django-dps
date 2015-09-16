@@ -2,7 +2,7 @@ import requests
 
 from django.test import TestCase, RequestFactory
 from django.utils.six import text_type
-from dps.transactions import make_payment
+from django_dps.transactions import make_payment
 
 from .models import Payment
 
