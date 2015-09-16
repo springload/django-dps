@@ -134,7 +134,14 @@ def offline_payment(params):
                                _params_to_xml_doc(status_params, root="Txn"))
 
     success = result.find(".//Authorized").text == "1"
-    return (success, ElementTree.tostring(result))
+
+    # TODO parse this ugly pile of xml properly, to produce something matching
+    # the response we get from pxpay
+    result_dict = {
+        'ResponseText': result.find('.//CardHolderResponseText').text,
+        'raw': ElementTree.tostring(result),
+    }
+    return (success, result_dict)
 
 
 def make_payment(content_object, request=None, transaction_opts={}):
