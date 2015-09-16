@@ -172,8 +172,9 @@ def make_payment(content_object, request=None, transaction_opts={}):
             params["EnableAddBillCard"] = "1"
     else:
         # set up for an offline/batch payment.
-        params.update({"DpsBillingId": content_object.get_billing_token(),
-                       "TxnId": trans.transaction_id})
+        params.update({"TxnId": trans.transaction_id})
+        if hasattr(content_object, 'get_billing_token'):
+            params.update({"DpsBillingId": content_object.get_billing_token()})
 
     params.update(transaction_opts)
 
