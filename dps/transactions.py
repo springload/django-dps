@@ -103,7 +103,8 @@ def get_interactive_result(result_key):
 
 
 def offline_payment(params):
-    """Make a non-interactive payment. Synchronous. Returns (success?, result)."""
+    """Make a non-interactive payment. Synchronous. Returns (success?, result).
+    """
     try:
         assert (params.get("BillingId", None) or
                 params.get("DpsBillingId", None) or
@@ -137,7 +138,8 @@ def offline_payment(params):
 
 
 def make_payment(content_object, request=None, transaction_opts={}):
-    """Main entry point. If we have a request we do it interactive, otherwise it's a batch/offline payment."""
+    """Main entry point. If we have a request we do it interactive, otherwise
+       it's a batch/offline payment."""
 
     trans = Transaction(content_object=content_object)
     trans.status = Transaction.PROCESSING
