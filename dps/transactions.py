@@ -136,12 +136,10 @@ def offline_payment(params):
 
     success = result.find(".//Authorized").text == "1"
 
-    # TODO parse this ugly pile of xml properly, to produce something matching
-    # the response we get from pxpay
-    result_dict = {
-        'ResponseText': result.find('.//CardHolderResponseText').text,
-        'raw': ElementTree.tostring(result),
-    }
+    result_dict = {}
+    for node in result.findall('.//'):
+        if node.text:
+            result_dict[node.tag] = node.text
     return (success, result_dict)
 
 
