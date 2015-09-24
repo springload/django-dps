@@ -52,7 +52,7 @@ def transaction_result(request, token):
     transaction = get_object_or_404(Transaction, secret=token,
                                     status__in=[Transaction.SUCCESSFUL,
                                                 Transaction.FAILED])
-    return render_to_response("dps/transaction_success.html", {
+    return render_to_response("dps/transaction_result.html", {
         "request": request,
         "transaction": transaction,
         "success": (transaction.status == Transaction.SUCCESSFUL),
