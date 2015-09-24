@@ -1,15 +1,10 @@
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponseRedirect
-from django.http import HttpResponseForbidden
 from django.shortcuts import render_to_response
 from django.core.urlresolvers import reverse
 
 from .decorators import dps_result_view
 from .models import Transaction
-    else:
-        return render_to_response("dps/transaction_success.html", {
-            "request": request,
-            "transaction": transaction})
 
 
 @dps_result_view
