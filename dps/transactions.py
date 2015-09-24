@@ -161,7 +161,7 @@ def make_payment(content_object, request=None, transaction_opts={}):
     if request:
         # set up params for an interactive payment
         return_url = u"http://%s" % request.META['HTTP_HOST'] + \
-                     reverse('dps_process_transaction', (trans.secret, ))
+                     reverse('dps_process_transaction', args=(trans.secret, ))
         params.update({"UrlFail": return_url,
                        "UrlSuccess": return_url})
         if getattr(content_object, "is_recurring", lambda: False)():

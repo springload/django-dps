@@ -44,7 +44,8 @@ def process_transaction(request, token, result):
         redirect_url = None
 
     return HttpResponseRedirect(
-        redirect_url or reverse('transaction_result', (transaction.secret, )))
+        redirect_url or reverse('dps_transaction_result',
+                                args=(transaction.secret, )))
 
 
 def transaction_result(request, token):
