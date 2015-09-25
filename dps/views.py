@@ -1,21 +1,34 @@
-from django.shortcuts import get_object_or_404
-from django.http import HttpResponseRedirect
+from django.shortcuts import get_object_or_404, redirect
+from django.http import Http404, HttpResponseBadRequest
 from django.shortcuts import render_to_response
 from django.core.urlresolvers import reverse
 
-from .decorators import dps_result_view
 from .models import Transaction
+from .transactions import get_interactive_result
 
 
-@dps_result_view
-def process_transaction(request, token, result):
+def process_transaction(request, token):
     """Process a pxpay transaction using the result retrieved from dps, and
-       redirect to the appropriate "success" or "failure" page. """
+       redirect to the appropriate "success" or "failure" page.
 
-    # once a transaction is completed, it can't be processed again, so only
-    # retrieve PROCESSING transactions
-    transaction = get_object_or_404(Transaction, secret=token,
-                                    status=Transaction.PROCESSING)
+       This view is 100% atomic; repeated requests should just redirect to the
+       result page without hitting dps. """
+
+    transaction = get_object_or_404(Transaction, secret=token)
+
+    # Redirecting if the transaction is already processed
+    if transaction.status in (Transaction.SUCCESSFUL, Transaction.FAILED):
+        return redirect('dps_transaction_result', transaction.secret)
+
+    # Don't process transactions that aren't at the correct stage
+    if transaction.status != Transaction.PROCESSING:
+        raise Http404
+
+    # grab the dps result
+    result_token = request.GET.get("result")
+    if not result_token:
+        return HttpResponseBadRequest('No result token supplied')
+    result = get_interactive_result(result_token)
 
     # save transaction result in all cases
     transaction.result_dict = result
@@ -43,9 +56,9 @@ def process_transaction(request, token, result):
     else:
         redirect_url = None
 
-    return HttpResponseRedirect(
-        redirect_url or reverse('dps_transaction_result',
-                                args=(transaction.secret, )))
+    return redirect(
+        redirect_url or
+        reverse('dps_transaction_result', args=(transaction.secret, )))
 
 
 def transaction_result(request, token):
