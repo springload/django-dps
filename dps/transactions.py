@@ -14,7 +14,7 @@ def _get_setting(name):
 
 
 PXPAY_URL = getattr(settings, 'PXPAY_URL',
-                    'https://sec.paymentexpress.com/pxpay/pxaccess.aspx')
+                    'https://sec.paymentexpress.com/pxaccess/pxpay.aspx')
 PXPOST_URL = getattr(settings, 'PXPOST_URL',
                      'https://sec.paymentexpress.com/pxpost.aspx')
 
