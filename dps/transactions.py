@@ -17,18 +17,19 @@ PXPAY_URL = getattr(settings, 'PXPAY_URL',
                     'https://sec.paymentexpress.com/pxaccess/pxpay.aspx')
 PXPOST_URL = getattr(settings, 'PXPOST_URL',
                      'https://sec.paymentexpress.com/pxpost.aspx')
+DEFAULT_CURRENCY = getattr(settings, 'DEFAULT_CURRENCY', 'NZD')
 
 
 PXPAY_DEFAULTS = {
     "TxnType": "Purchase",
     "PxPayUserId": _get_setting("PXPAY_USERID"),
     "PxPayKey": _get_setting("PXPAY_KEY"),
-    "CurrencyInput": "NZD"}
+    "CurrencyInput": DEFAULT_CURRENCY}
 
 
 PXPOST_DEFAULTS = {
     "TxnType": "Purchase",
-    "InputCurrency": "NZD",
+    "InputCurrency": DEFAULT_CURRENCY,
     "PostUsername": _get_setting("PXPOST_USERID"),
     "PostPassword": _get_setting("PXPOST_KEY")}
 
