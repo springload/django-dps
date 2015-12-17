@@ -191,5 +191,5 @@ def make_payment(content_object, request=None, transaction_opts={}):
                                lambda *args: None)
         trans.result_dict = result
         trans.save()
-        redirect_url = callback(trans, False, status_updated)
+        redirect_url = callback(transaction=trans, interactive=False, status_updated=status_updated)
         return (success, trans, redirect_url)
