@@ -52,7 +52,8 @@ def process_transaction(request, token):
                     'transaction_failed'
     callback = getattr(transaction.content_object, callback_name, None)
     if callback:
-        redirect_url = callback(transaction, True, status_updated)
+        redirect_url = callback(transaction=transaction, interactive=True,
+                                status_updated=status_updated)
     else:
         redirect_url = None
 
