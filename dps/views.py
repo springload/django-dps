@@ -37,15 +37,17 @@ def process_transaction(request, token):
     success = result['Success'] == '1'
 
     # update transaction status according to success
-    if success:
-        status_updated = transaction.set_status(Transaction.SUCCESSFUL)
+    status_updated = transaction.complete_transaction(success)
+    if not status_updated:
+        # shouldn't ever get here, but there's a tiny race condition which
+        # means it might, so raise the 404 that would normally happen above
+        raise Http404
 
+    if success:
         # if recurring payments are required, save the billing token
         content_object = transaction.content_object
         if content_object.is_recurring():
             content_object.set_billing_token(result["DpsBillingId"] or None)
-    else:
-        status_updated = transaction.set_status(Transaction.FAILED)
 
     # call the callback if it exists
     callback_name = 'transaction_succeeded' if success else \

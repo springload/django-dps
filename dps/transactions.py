@@ -182,11 +182,11 @@ def make_payment(content_object, request=None, transaction_opts={}):
     else:
         (success, result) = offline_payment(params)
         if success:
-            status_updated = trans.set_status(Transaction.SUCCESSFUL)
+            status_updated = trans.complete_transaction(True)
             callback = getattr(content_object, "transaction_succeeded",
                                lambda *args: None)
         else:
-            status_updated = trans.set_status(Transaction.FAILED)
+            status_updated = trans.complete_transaction(False)
             callback = getattr(content_object, "transaction_failed",
                                lambda *args: None)
         trans.result_dict = result

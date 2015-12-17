@@ -66,17 +66,22 @@ class Transaction(models.Model):
             self.get_transaction_type_display().lower(),
             self.amount, str(self.created))
 
-    def set_status(self, status):
-        '''Atomically set transaction status, returning True if the status was
-           changed or False if it was already set to this value.'''
+    def complete_transaction(self, successful):
+        '''Set the final transaction status (SUCCESSFUL or FAILED), but only if
+           the previous status was PROCESSING. Return True in this case,
+           otherwise False. '''
 
-        # set value on the instance too, so that subsequent save() calls don't
-        # clobber the database update
-        self.status = status
+        status = self.SUCCESSFUL if successful else self.FAILED
 
-        return bool(Transaction.objects.exclude(status=status)
-                                       .filter(id=self.id)
-                                       .update(status=status))
+        updated = bool(Transaction.objects.filter(id=self.id,
+                                                  status=self.PROCESSING)
+                                          .update(status=status))
+        if updated:
+            # set value on the instance too, so that subsequent save() calls
+            # don't clobber the database update
+            self.status = status
+
+        return updated
 
     def get_result_dict(self):
         return json.loads(self.result)
