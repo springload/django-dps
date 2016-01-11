@@ -79,7 +79,7 @@ def begin_interactive(params):
     return HttpResponseRedirect(response.find("URI").text)
 
 
-def get_interactive_result(result_key):
+def get_interactive_result(result_key, param_overrides={}):
     """Unfortunately PxPay and PxPost have different XML reprs for
     transaction results, so we need a specific function for each.
 
@@ -88,6 +88,7 @@ def get_interactive_result(result_key):
         "PxPayUserId": _get_setting("PXPAY_USERID"),
         "PxPayKey": _get_setting("PXPAY_KEY"),
         "Response": result_key}
+    params.update(param_overrides)
     result = _get_response(PXPAY_URL,
                            _params_to_xml_doc(params, root="ProcessResponse"))
 
@@ -144,7 +145,8 @@ def offline_payment(params):
     return (success, result_dict)
 
 
-def make_payment(content_object, request=None, transaction_opts={}):
+def make_payment(content_object, request=None, transaction_opts={},
+                 get_return_url=None):
     """Main entry point. If we have a request we do it interactive, otherwise
        it's a batch/offline payment."""
 
@@ -161,8 +163,13 @@ def make_payment(content_object, request=None, transaction_opts={}):
 
     if request:
         # set up params for an interactive payment
+        if get_return_url:
+            return_url = get_return_url(trans)
+        else:
+            return_url = reverse('dps_process_transaction',
+                                 args=(trans.secret, ))
         return_url = u"http://%s" % request.META['HTTP_HOST'] + \
-                     reverse('dps_process_transaction', args=(trans.secret, ))
+                     return_url
         params.update({"UrlFail": return_url,
                        "UrlSuccess": return_url})
         if getattr(content_object, "is_recurring", lambda: False)():

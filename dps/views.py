@@ -7,7 +7,7 @@ from .models import Transaction
 from .transactions import get_interactive_result
 
 
-def process_transaction(request, token):
+def process_transaction(request, token, param_overrides={}):
     """Process a pxpay transaction using the result retrieved from dps, and
        redirect to the appropriate "success" or "failure" page.
 
@@ -28,7 +28,7 @@ def process_transaction(request, token):
     result_token = request.GET.get("result")
     if not result_token:
         return HttpResponseBadRequest('No result token supplied')
-    result = get_interactive_result(result_token)
+    result = get_interactive_result(result_token, param_overrides)
 
     # save transaction result in all cases
     transaction.result_dict = result
