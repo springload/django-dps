@@ -12,10 +12,8 @@ def _get_setting(name):
                    Exception("Please specify %s in settings." % name))
 
 
-PXPAY_URL = getattr(settings, 'PXPAY_URL',
-                    'https://sec.paymentexpress.com/pxpay/pxaccess.aspx')
-PXPOST_URL = getattr(settings, 'PXPOST_URL',
-                     'https://sec.paymentexpress.com/pxpost.aspx')
+PXPAY_URL = getattr(settings, 'PXPAY_URL', 'https://sec.paymentexpress.com/pxaccess/pxpay.aspx')
+PXPOST_URL = getattr(settings, 'PXPOST_URL', 'https://sec.paymentexpress.com/pxpost.aspx')
 
 
 PXPAY_DEFAULTS = {
