@@ -18,7 +18,20 @@ def process_transaction(request, token, param_overrides={}):
 
     # Redirecting if the transaction is already processed
     if transaction.status in (Transaction.SUCCESSFUL, Transaction.FAILED):
-        return redirect('dps_transaction_result', transaction.secret)
+        result = transaction.result_dict
+        success = result['Success'] == '1'
+        callback_name = 'transaction_succeeded' if success else \
+                        'transaction_failed'
+        callback = getattr(transaction.content_object, callback_name, None)
+        if callback:
+            redirect_url = callback(transaction=transaction, interactive=True,
+                                    status_updated=False)
+        else:
+            redirect_url = None
+
+        return redirect(
+            redirect_url or
+            reverse('dps_transaction_result', args=(transaction.secret, )))
 
     # Don't process transactions that aren't at the correct stage
     if transaction.status != Transaction.PROCESSING:
